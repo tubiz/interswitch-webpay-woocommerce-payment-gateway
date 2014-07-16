@@ -1,12 +1,20 @@
-=== Interswitch Webpay Woocommerce Payment Gateway ===
-Contributors: tubiz
-Donate link: http://bosun.me/donate
-Tags: woocommerce, payment gateway, payment gateways, mastercard, visa cards, mastercards, interswitch, verve cards, tubiz plugins, verve, nigeria, webpay
-Requires at least: 3.5
-Tested up to: 3.9.1
-Stable tag: 1.0.0
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+# Interswitch Webpay Woocommerce Payment Gateway #
+**Contributors:** tubiz
+
+**Donate link:** http://bosun.me/donate
+
+**Tags:** woocommerce, payment gateway, payment gateways, mastercard, visa cards, mastercards, interswitch, verve cards, tubiz plugins, verve, nigeria, webpay
+
+**Requires at least:** 3.5
+
+**Tested up to:** 3.9.1
+
+**Stable tag:** 1.0.0
+
+**License:** GPLv2 or later
+
+**License URI:** http://www.gnu.org/licenses/gpl-2.0.html
+
 
 Interswitch Webpay Woocommerce Payment Gateway allows you to accept payment on your Woocommerce store via Interswitch Webpay payment gateway.
 
@@ -14,7 +22,7 @@ Interswitch Webpay Woocommerce Payment Gateway allows you to accept payment on y
 
 
 
-== Description ==
+## Description ##
 
 This is a Interswitch Webpay payment gateway for Woocommerce.
 
@@ -29,17 +37,17 @@ With this Interswitch Webpay Woocommerce Payment Gateway plugin, you will be abl
 * __Visa Card__
 * __Verve Cards__
 
-= Note =
+### Note ###
 
 This plugin is meant to be used by merchants in Nigeria.
 
-= Plugin Features =
+### Plugin Features ###
 
 *   __Accept payment__ via Verve Cards, Visa Cards and Mastercards.
 * 	__Seamless integration__ into the WooCommerce checkout page.
 * 	__Add Naira__ currency symbol. To select it go to go to __WooCommerce > Settings__ from the left hand menu, then click __General__ from the top tab. From __Currency__ select Naira, then click on __Save Changes__ for your changes to be effected.
 
-= Premium Addons =
+### Premium Addons ###
 
 **Interswitch Webpay WooCommerce Payment Gateway Transaction Log**
 
@@ -54,27 +62,27 @@ This plugin is meant to be used by merchants in Nigeria.
 To get the plugin click [here](https://tunspress.com/plugins/interswitch-webpay-woocommerce-payment-gateway-transaction-log/)
 
 
-= Suggestions / Feature Request =
+### Suggestions / Feature Request ###
 
 If you have suggestions or a new feature request, feel free to get in touch with me via the contact form on my website [here](http://bosun.me/get-in-touch/)
 
 You can also follow me on Twitter! **[@tubiz](http://twitter.com/tubiz)**
 
 
-= Contribute =
+### Contribute ###
 To contribute to this plugin feel free to fork it on GitHub [Interswitch Webpay Woocommerce Payment Gateway on GitHub](https://github.com/tubiz/interswitch-webpay-woocommerce-payment-gateway)
 
 
-== Installation ==
+## Installation ##
 
-= Automatic Installation =
+### Automatic Installation ###
 * 	Login to your WordPress Admin area
 * 	Go to "Plugins > Add New" from the left hand menu
 * 	In the search box type "Interswitch Webpay Woocommerce Payment Gateway"
 *	From the search result you will see "Interswitch Webpay Woocommerce Payment Gateway" click on "Install Now" to install the plugin
 *	A popup window will ask you to confirm your wish to install the Plugin.
 
-= Note: =
+### Note: ###
 If this is the first time you've installed a WordPress Plugin, you may need to enter the FTP login credential information. If you've installed a Plugin before, it will still have the login information. This information is available through your web server host.
 
 * Click "Proceed" to continue the installation. The resulting installation screen will list the installation as successful or note any problems during the install.
@@ -83,7 +91,7 @@ If this is the first time you've installed a WordPress Plugin, you may need to e
 * 	Click on the sub tab for "Interswitch Webpay".
 *	Configure your "Interswitch Webpay" settings. See below for details.
 
-= Manual Installation =
+### Manual Installation ###
 1. 	Download the plugin zip file
 2. 	Login to your WordPress Admin. Click on "Plugins > Add New" from the left hand menu.
 3.  Click on the "Upload" option, then click "Choose File" to select the zip file from your computer. Once selected, press "OK" and press the "Install Now" button.
@@ -94,7 +102,7 @@ If this is the first time you've installed a WordPress Plugin, you may need to e
 
 
 
-= Configure the plugin =
+### Configure the plugin ###
 To configure the plugin, go to __WooCommerce > Settings__ from the left hand menu, then click "Payment Gateways" from the top tab. You should see __"Interswitch Webpay"__ as an option at the top of the screen. Click on it to configure the payment gateway.
 
 __*You can select the radio button next to the Interswitch Webpay from the list of payment gateways available to make it the default gateway.*__
@@ -112,9 +120,9 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 
 
-== Frequently Asked Questions ==
+## Frequently Asked Questions ##
 
-= What Do I Need To Use The Plugin =
+### What Do I Need To Use The Plugin ###
 
 1.	You need to have Woocommerce plugin installed and activated on your WordPress site.
 2.	You need to signup for Interswitch Webpay on [Interswitch](https://connect.interswitchng.com/documentation/getting-started/)
@@ -122,16 +130,16 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 
 
-== Changelog ==
+## Changelog ##
 
-= 1.0.0 =
+### 1.0.0 ###
 *   First release
 
 
 
 
 
-== Upgrade Notice ==
+## Upgrade Notice ##
 
 * No need to upgrade yet
 
@@ -140,20 +148,37 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 
 
-== Screenshots ==
+## Screenshots ##
 
-1. Interswitch Webpay Woocommerce Payment Gateway setting page
 
-2. Test Mode notification, always disaplyed in the admin backend till when test mode is disabled
+###1. Interswitch Webpay Woocommerce Payment Gateway setting page
+###
+![Screenshot 1](https://dl.dropboxusercontent.com/u/28591673/interswitch-webpay-woocommerce-payment-gateway/screenshot-1.png)
 
-3. Interswitch Webpay Wooocommerce Payment Gateway method on the checkout page
+###2. Test Mode notification, always disaplyed in the admin backend till when test mode is disabled
+###
+![Screenshot 2](https://dl.dropboxusercontent.com/u/28591673/interswitch-webpay-woocommerce-payment-gateway/screenshot-2.png)
 
-4. Order confirmation before payment is made
+###3. Interswitch Webpay Wooocommerce Payment Gateway method on the checkout page
+###
+![Screenshot 3](https://dl.dropboxusercontent.com/u/28591673/interswitch-webpay-woocommerce-payment-gateway/screenshot-3.png)
 
-5. Failed Transaction: No Card Record
+###4. Order confirmation before payment is made
+###
+![Screenshot 4](https://dl.dropboxusercontent.com/u/28591673/interswitch-webpay-woocommerce-payment-gateway/screenshot-4.png)
 
-6. Failed Transaction: PIN tries exceeded
+###5. Failed Transaction: No Card Record
+###
+![Screenshot 5](https://dl.dropboxusercontent.com/u/28591673/interswitch-webpay-woocommerce-payment-gateway/screenshot-5.png)
 
-7. Failed Transaction: Insuffcient Funds
+###6. Failed Transaction: PIN tries exceeded
+###
+![Screenshot 6](https://dl.dropboxusercontent.com/u/28591673/interswitch-webpay-woocommerce-payment-gateway/screenshot-6.png)
 
-8. Successful Transaction
+###7. Failed Transaction: Insuffcient Funds
+###
+![Screenshot 7](https://dl.dropboxusercontent.com/u/28591673/interswitch-webpay-woocommerce-payment-gateway/screenshot-7.png)
+
+###8. Successful Transaction
+###
+![Screenshot 8](https://dl.dropboxusercontent.com/u/28591673/interswitch-webpay-woocommerce-payment-gateway/screenshot-8.png)
