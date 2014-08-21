@@ -59,6 +59,9 @@ function tbz_wc_interswitch_webpay_init() {
 			// Payment listener/API hook
 			add_action( 'woocommerce_api_wc_tbz_webpay_gateway', array( $this, 'check_webpay_response' ) );
 
+			//Display Transaction Reference on checkout
+			add_action( 'before_woocommerce_pay', array( $this, 'display_transaction_id' ) );
+
 			// Check if the gateway can be used
 			if ( ! $this->is_valid_for_use() ) {
 				$this->enabled = false;
@@ -193,6 +196,8 @@ function tbz_wc_interswitch_webpay_init() {
 				'hash' 					=> $hash,
 				'pay_item_id' 			=> $pay_item_id,
 			);
+
+			update_post_meta( $order->id, '_wc_webpay_txn_id', $txn_ref );
 
 			$webpay_args = apply_filters( 'woocommerce_webpay_args', $webpay_args );
 			return $webpay_args;
@@ -438,6 +443,21 @@ function tbz_wc_interswitch_webpay_init() {
 
 			return $response;
 
+		}
+
+	    /**
+	     * Display the Transaction Reference on the payment confirmation page.
+	    **/
+		function display_transaction_id(){
+			$order_id = absint( get_query_var( 'order-pay' ) );
+			$order = new WC_Order( $order_id );
+
+			$payment_method =  $order->payment_method;
+
+			if( !isset( $_GET['pay_for_order'] ) && ( 'tbz_webpay_gateway' == $payment_method ) ){
+				$txn_ref = get_post_meta( $order_id, '_wc_webpay_txn_id', true );
+				echo '<h4>Transaction Reference: '. $txn_ref .'</h4>';
+			}
 		}
 	}
 
