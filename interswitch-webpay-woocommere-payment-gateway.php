@@ -433,17 +433,6 @@ function tbz_wc_interswitch_webpay_init() {
 				'Hash' => $hash
 			);
 
-			require_once 'lib/Unirest.php';
-
-        	Unirest::verifyPeer(false);
-        	Unirest::timeout(30);
-
-			$request 	= Unirest::get($url, $headers, NULL, NULL, NULL);
-
-			$response 	= (array)$request->body;
-
-			return $response;
-
 		}
 
 	    /**
