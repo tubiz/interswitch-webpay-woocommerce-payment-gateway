@@ -200,6 +200,7 @@ function tbz_wc_interswitch_webpay_init() {
 			update_post_meta( $order->id, '_wc_webpay_txn_id', $txn_ref );
 
 			$webpay_args = apply_filters( 'woocommerce_webpay_args', $webpay_args );
+
 			return $webpay_args;
 		}
 
@@ -219,18 +220,48 @@ function tbz_wc_interswitch_webpay_init() {
 
 			$webpay_args = $this->get_webpay_args( $order );
 
+			// before payment hook
+            do_action('tbz_wc_webpay_before_payment', $webpay_args);
+
 			$webpay_args_array = array();
 
 			foreach ($webpay_args as $key => $value) {
 				$webpay_args_array[] = '<input type="hidden" name="'.esc_attr( $key ).'" value="'.esc_attr( $value ).'" />';
 			}
 
-			return '<form action="'.esc_url( $webpay_adr ).'" method="post" id="webpay_payment_form" target="_top">
-					' . implode('', $webpay_args_array) . '
-					<input type="submit" class="button-alt" id="submit_webpay_payment_form" value="'.__('Make Payment', 'woocommerce').'" />
-					<a class="button cancel" href="'.esc_url( $order->get_cancel_order_url() ).'">'.__('Cancel order &amp; restore cart', 'woocommerce').'</a>
-				</form>';
+			wc_enqueue_js( '
+				$.blockUI({
+						message: "' . esc_js( __( 'Thank you for your order. We are now redirecting you to Interswitch to make payment.', 'woocommerce' ) ) . '",
+						baseZ: 99999,
+						overlayCSS:
+						{
+							background: "#fff",
+							opacity: 0.6
+						},
+						css: {
+							padding:        "20px",
+							zindex:         "9999999",
+							textAlign:      "center",
+							color:          "#555",
+							border:         "3px solid #aaa",
+							backgroundColor:"#fff",
+							cursor:         "wait",
+							lineHeight:		"24px",
+						}
+					});
+				jQuery("#submit_webpay_payment_form").click();
+			' );
 
+			return '<form action="' . esc_url( $webpay_adr ) . '" method="post" id="webpay_payment_form" target="_top">
+					' . implode( '', $webpay_args_array ) . '
+					<!-- Button Fallback -->
+					<div class="payment_buttons">
+						<input type="submit" class="button alt" id="submit_webpay_payment_form" value="' . __( 'Pay via Interswitch Webpay', 'woocommerce' ) . '" /> <a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . __( 'Cancel order &amp; restore cart', 'woocommerce' ) . '</a>
+					</div>
+					<script type="text/javascript">
+						jQuery(".payment_buttons").hide();
+					</script>
+				</form>';
 		}
 
 	    /**
@@ -256,7 +287,7 @@ function tbz_wc_interswitch_webpay_init() {
 	     * Output for the order received page.
 	    **/
 		function receipt_page( $order ) {
-			echo '<p>'.__('Thank you for your order, please click the button below to make payment.', 'woocommerce').'</p>';
+			echo '<p>' . __( 'Thank you - your order is now pending payment. You should be automatically redirected to Interswitch to make payment.', 'woocommerce' ) . '</p>';
 			echo $this->generate_webpay_form( $order );
 		}
 
@@ -287,7 +318,8 @@ function tbz_wc_interswitch_webpay_init() {
 				$amount_paid    = $response['Amount'] / 100;
 				$response_desc  = $response['ResponseDescription'];
 
-                do_action('tbz_wc_webpay_after_payment', $response);
+				// after payment hook
+                do_action('tbz_wc_webpay_after_payment', $_POST, $response );
 
 				//process a successful transaction
 				if( '00' == $response_code){
