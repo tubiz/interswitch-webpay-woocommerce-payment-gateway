@@ -433,6 +433,16 @@ function tbz_wc_interswitch_webpay_init() {
 				'Hash' => $hash
 			);
 
+			$args = array(
+				'timeout'	=> 30,
+				'headers' 	=> $headers
+			);
+
+			$response 		= wp_remote_get( $url, $args );
+			$response  		= json_decode($response['body'], true);
+
+			return $response;
+
 		}
 
 	    /**
