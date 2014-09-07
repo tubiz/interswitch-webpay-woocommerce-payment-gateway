@@ -540,7 +540,7 @@ function tbz_wc_interswitch_webpay_init() {
 		if ( 'yes' == $webpay_test_mode ) {
 	    ?>
 		    <div class="update-nag">
-		        <p>Interswitch Webpay testmode is still enabled, remember to disable it when you want to start accepting live payment on your site.</p>
+		        Interswitch Webpay testmode is still enabled, remember to disable it when you want to start accepting live payment on your site.
 		    </div>
 	    <?php
 		}
