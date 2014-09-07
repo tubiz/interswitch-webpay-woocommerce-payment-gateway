@@ -7,9 +7,9 @@
 
 **Requires at least:** 3.5
 
-**Tested up to:** 3.9.1
+**Tested up to:** 4.0
 
-**Stable tag:** 1.0.1
+**Stable tag:** 1.0.2
 
 **License:** GPLv2 or later
 
@@ -132,6 +132,12 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 ## Changelog ##
 
+### 1.0.2 ###
+*   New: Display transaction ID before the customer is forwarded to Interswitch to make payment
+*   New: Automatically forward the customer to Interswitch to make payment
+* 	New: Add a new hook.
+*   Fix: Removed Unirest lib, HTTP request now use wp_remote_get
+
 ### 1.0.1 ###
 * 	Fix: This fix an error querying the details of a transaction
 
@@ -139,15 +145,10 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 *   First release
 
 
-
-
-
 ## Upgrade Notice ##
 
-### 1.0.1 ###
-* This is a very important update, kindly update to this version as this fix an error that prevents querying the details of a transaction.
-
-
+### 1.0.2 ###
+* Added some new features, kindly update. Thanks.
 
 
 
