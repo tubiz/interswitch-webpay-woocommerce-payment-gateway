@@ -3,7 +3,7 @@
 	Plugin Name: Interswitch Webpay WooCommerce Payment Gateway
 	Plugin URI: http://bosun.me/interswitch-webpay-woocommerce-payment-gateway
 	Description: Interswitch Webpay Woocommerce Payment Gateway allows you to accept payment on your Woocommerce store via Verve Cards, Visa Cards and Mastercards.
-	Version: 1.0.2
+	Version: 1.0.3
 	Author: Tunbosun Ayinla
 	Author URI: http://bosun.me/
 	License:           GPL-2.0+
@@ -183,6 +183,8 @@ function tbz_wc_interswitch_webpay_init() {
 			$txn_ref 		= uniqid();
 			$txn_ref 		= $txn_ref.'_'.$order->id;
 
+        	$customer_name	= $order->billing_first_name. ' ' . $order->billing_last_name;
+
 			$hash 			= $txn_ref.$product_id.$pay_item_id.$order_total.$redirect_url.$mac_key;
 			$hash 			= hash("sha512", $hash);
 
@@ -195,9 +197,13 @@ function tbz_wc_interswitch_webpay_init() {
 				'txn_ref' 				=> $txn_ref,
 				'hash' 					=> $hash,
 				'pay_item_id' 			=> $pay_item_id,
+				'cust_name'				=> $customer_name,
+				'cust_name_desc'		=> 'Customer Name',
+				'cust_id'				=> $txn_ref,
+				'cust_id_desc'			=> 'Transaction Reference',
 			);
 
-			update_post_meta( $order->id, '_wc_webpay_txn_id', $txn_ref );
+			WC()->session->set( 'tbz_wc_webpay_txn_id', $txn_ref );
 
 			$webpay_args = apply_filters( 'woocommerce_webpay_args', $webpay_args );
 
@@ -270,12 +276,6 @@ function tbz_wc_interswitch_webpay_init() {
 		function process_payment( $order_id ) {
 
 			$order 			= new WC_Order( $order_id );
-
-			$webpay_args 	= $this->get_webpay_args( $order );
-
-			$txn_ref 		= $webpay_args['txn_ref'];
-
-			update_post_meta( $order_id, '_webpay_txn_ref', $txn_ref );
 
 	        return array(
 	        	'result' => 'success',
@@ -428,14 +428,16 @@ function tbz_wc_interswitch_webpay_init() {
 
 			}
 
+            $notification_message = array(
+            	'message'	=> $message,
+            	'message_type' => $message_type
+            );
 
-			if ( function_exists( 'wc_add_notice' ) ) {
-				wc_add_notice( $message, $message_type );
-
-			} else { // WC < 2.1
-				$woocommerce->add_message( $message );
-				$woocommerce->set_messages();
+			if ( version_compare( WOOCOMMERCE_VERSION, "2.2" ) >= 0 ) {
+				add_post_meta( $order_id, '_transaction_id', $txnref, true );
 			}
+
+			update_post_meta( $order_id, '_tbz_interswitch_wc_message', $notification_message );
 
             $redirect_url = esc_url( $this->get_return_url( $order ) );
             wp_redirect( $redirect_url );
@@ -487,11 +489,35 @@ function tbz_wc_interswitch_webpay_init() {
 			$payment_method =  $order->payment_method;
 
 			if( !isset( $_GET['pay_for_order'] ) && ( 'tbz_webpay_gateway' == $payment_method ) ){
-				$txn_ref = get_post_meta( $order_id, '_wc_webpay_txn_id', true );
+				$txn_ref =$order_id = WC()->session->get( 'tbz_wc_webpay_txn_id' );
+				WC()->session->__unset( 'tbz_wc_webpay_txn_id' );
 				echo '<h4>Transaction Reference: '. $txn_ref .'</h4>';
 			}
 		}
 	}
+
+
+	function tbz_wc_interswitch_message(){
+
+		$order_id 		= absint( get_query_var( 'order-received' ) );
+		$order 			= new WC_Order( $order_id );
+		$payment_method =  $order->payment_method;
+
+		if( is_order_received_page() &&  ( 'tbz_webpay_gateway' == $payment_method ) ){
+
+			$notification 		= get_post_meta( $order_id, '_tbz_interswitch_wc_message', true );
+			$message 			= $notification['message'];
+			$message_type 		= $notification['message_type'];
+
+			delete_post_meta( $order_id, '_tbz_interswitch_wc_message' );
+
+			if( ! empty( $message) ){
+				wc_add_notice( $message, $message_type );
+			}
+		}
+	}
+	add_action('wp', 'tbz_wc_interswitch_message', 0);
+
 
 	/**
  	* Add Webpay Gateway to WC
