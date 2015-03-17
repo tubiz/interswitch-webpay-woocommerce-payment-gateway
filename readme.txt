@@ -4,7 +4,7 @@ Donate link: http://bosun.me/donate
 Tags: woocommerce, payment gateway, payment gateways, mastercard, visa cards, mastercards, interswitch, verve cards, tubiz plugins, verve, nigeria, webpay
 Requires at least: 3.5
 Tested up to: 4.1
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,10 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 == Changelog ==
 
+= 1.0.4 =
+* 	Fix: Payment status message not shown if pretty permalinks is disabled
+*	Fix: PHP notice when a customer is redirected back from Interswitch
+
 = 1.0.3 =
 *	New: Display customer name and transaction id on Interswitch payment page (Interswitch UAT requirement)
 * 	Fix: Fix an error that prevents the payment status message from being shown after being redirected back from the gateway
@@ -146,8 +150,8 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 == Upgrade Notice ==
 
-= 1.0.3 =
-* Added some new features required for Interswitch UAT, kindly update. Thanks.
+= 1.0.4 =
+* Fix for payment status not shown if pretty permalinks is disabled
 
 
 

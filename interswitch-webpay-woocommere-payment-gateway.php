@@ -3,7 +3,7 @@
 	Plugin Name: Interswitch Webpay WooCommerce Payment Gateway
 	Plugin URI: http://bosun.me/interswitch-webpay-woocommerce-payment-gateway
 	Description: Interswitch Webpay Woocommerce Payment Gateway allows you to accept payment on your Woocommerce store via Verve Cards, Visa Cards and Mastercards.
-	Version: 1.0.3
+	Version: 1.0.4
 	Author: Tunbosun Ayinla
 	Author URI: http://bosun.me/
 	License:           GPL-2.0+
@@ -35,7 +35,7 @@ function tbz_wc_interswitch_webpay_init() {
 			$this->liveurl 				= 'https://webpay.interswitchng.com/paydirect/pay';
 			$this->redirect_url        	= WC()->api_request_url( 'WC_Tbz_Webpay_Gateway' );
         	$this->method_title     	= 'Interswitch Webpay';
-        	$this->method_description  	= 'Interswitch Webpay allows you to receive Mastercard, Verve Card and Visa Card Payments On your Woocommerce Powered Site.';
+        	$this->method_description  	= 'Accepts Mastercard, Verve Card and Visa Card';
 
 
 			// Load the form fields.
@@ -126,7 +126,7 @@ function tbz_wc_interswitch_webpay_init() {
 								'title' 		=> 'Description',
 								'type' 			=> 'textarea',
 								'description' 	=> 'This controls the description which the user sees during checkout.',
-								'default' 		=> 'Interswitch Webpay allows you to receive Mastercard, Verve Card and Visa Card Payments On your Woocommerce Powered Site.'
+								'default' 		=> 'Accepts Mastercard, Verve Card and Visa Card'
 							),
 				'product_id' => array(
 								'title' 		=> 'Product ID',
@@ -404,7 +404,6 @@ function tbz_wc_interswitch_webpay_init() {
 							WC()->cart->empty_cart();
 		                }
 	                }
-
 				}
 				else{
 					//process a failed transaction
@@ -439,7 +438,8 @@ function tbz_wc_interswitch_webpay_init() {
 
 			update_post_meta( $order_id, '_tbz_interswitch_wc_message', $notification_message );
 
-            $redirect_url = esc_url( $this->get_return_url( $order ) );
+            $redirect_url = $this->get_return_url( $order );
+
             wp_redirect( $redirect_url );
             exit;
 		}
@@ -476,7 +476,6 @@ function tbz_wc_interswitch_webpay_init() {
 			$response  		= json_decode($response['body'], true);
 
 			return $response;
-
 		}
 
 	    /**
@@ -501,13 +500,14 @@ function tbz_wc_interswitch_webpay_init() {
 
 		$order_id 		= absint( get_query_var( 'order-received' ) );
 		$order 			= new WC_Order( $order_id );
-		$payment_method =  $order->payment_method;
+		$payment_method = $order->payment_method;
 
 		if( is_order_received_page() &&  ( 'tbz_webpay_gateway' == $payment_method ) ){
 
 			$notification 		= get_post_meta( $order_id, '_tbz_interswitch_wc_message', true );
-			$message 			= $notification['message'];
-			$message_type 		= $notification['message_type'];
+
+			$message 			= isset( $notification['message'] ) ? $notification['message'] : '';
+			$message_type 		= isset( $notification['message_type'] ) ? $notification['message_type'] : '';
 
 			delete_post_meta( $order_id, '_tbz_interswitch_wc_message' );
 
