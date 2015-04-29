@@ -3,7 +3,7 @@
 	Plugin Name: Interswitch Webpay WooCommerce Payment Gateway
 	Plugin URI: http://bosun.me/interswitch-webpay-woocommerce-payment-gateway
 	Description: Interswitch Webpay Woocommerce Payment Gateway allows you to accept payment on your Woocommerce store via Verve Cards, Visa Cards and Mastercards.
-	Version: 1.0.4
+	Version: 1.1.0
 	Author: Tunbosun Ayinla
 	Author URI: http://bosun.me/
 	License:           GPL-2.0+
@@ -26,7 +26,6 @@ function tbz_wc_interswitch_webpay_init() {
 	class WC_Tbz_Webpay_Gateway extends WC_Payment_Gateway {
 
 		public function __construct(){
-			global $woocommerce;
 
 			$this->id 					= 'tbz_webpay_gateway';
     		$this->icon 				= apply_filters('woocommerce_webpay_icon', plugins_url( 'assets/images/interswitch.png' , __FILE__ ) );
@@ -74,7 +73,7 @@ function tbz_wc_interswitch_webpay_init() {
 		public function is_valid_for_use(){
 
 			if( ! in_array( get_woocommerce_currency(), array('NGN') ) ){
-				$this->msg = 'Interswitch Webpay doesn\'t support your store currency, set it to Nigerian Naira &#8358; <a href="' . get_bloginfo('wpurl') . '/wp-admin/admin.php?page=wc_settings&tab=general">here</a>';
+				$this->msg = 'Interswitch Webpay doesn\'t support your store currency, set it to Nigerian Naira &#8358; <a href="' . get_bloginfo('wpurl') . '/wp-admin/admin.php?page=wc-settings&tab=general">here</a>';
 				return false;
 			}
 
@@ -168,7 +167,6 @@ function tbz_wc_interswitch_webpay_init() {
 		 * Get Webpay Args for passing to Interswitch
 		**/
 		function get_webpay_args( $order ) {
-			global $woocommerce;
 
 			$order_total	= $order->get_total();
 			$order_total    = $order_total * 100;
@@ -214,9 +212,8 @@ function tbz_wc_interswitch_webpay_init() {
 		 * Generate the Webpay Payment button link
 	    **/
 	    function generate_webpay_form( $order_id ) {
-			global $woocommerce;
 
-			$order = new WC_Order( $order_id );
+			$order = wc_get_order( $order_id );
 
 			if ( 'yes' == $this->testmode ) {
         		$webpay_adr = $this->testurl;
@@ -227,7 +224,7 @@ function tbz_wc_interswitch_webpay_init() {
 			$webpay_args = $this->get_webpay_args( $order );
 
 			// before payment hook
-            do_action('tbz_wc_webpay_before_payment', $webpay_args);
+            do_action( 'tbz_wc_webpay_before_payment', $webpay_args );
 
 			$webpay_args_array = array();
 
@@ -258,11 +255,11 @@ function tbz_wc_interswitch_webpay_init() {
 				jQuery("#submit_webpay_payment_form").click();
 			' );
 
-			return '<form action="' . esc_url( $webpay_adr ) . '" method="post" id="webpay_payment_form" target="_top">
+			return '<form action="' . $webpay_adr . '" method="post" id="webpay_payment_form" target="_top">
 					' . implode( '', $webpay_args_array ) . '
 					<!-- Button Fallback -->
 					<div class="payment_buttons">
-						<input type="submit" class="button alt" id="submit_webpay_payment_form" value="' . __( 'Pay via Interswitch Webpay', 'woocommerce' ) . '" /> <a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . __( 'Cancel order &amp; restore cart', 'woocommerce' ) . '</a>
+						<input type="submit" class="button alt" id="submit_webpay_payment_form" value="Pay via Interswitch Webpay" /> <a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">Cancel order &amp; restore cart</a>
 					</div>
 					<script type="text/javascript">
 						jQuery(".payment_buttons").hide();
@@ -275,7 +272,7 @@ function tbz_wc_interswitch_webpay_init() {
 	    **/
 		function process_payment( $order_id ) {
 
-			$order 			= new WC_Order( $order_id );
+			$order 	= wc_get_order( $order_id );
 
 	        return array(
 	        	'result' => 'success',
@@ -296,7 +293,6 @@ function tbz_wc_interswitch_webpay_init() {
 		 * Verify a successful Payment!
 		**/
 		function check_webpay_response( $posted ){
-			global $woocommerce;
 
 			if( isset( $_POST['txnref'] ) ){
 
@@ -307,7 +303,7 @@ function tbz_wc_interswitch_webpay_init() {
 
 				$order_id 		= (int) $order_id;
 
-		        $order 			= new WC_Order($order_id);
+		        $order 			= wc_get_order($order_id);
 		        $order_total	= $order->get_total();
 
 		        $total          = $order_total * 100;
@@ -324,6 +320,8 @@ function tbz_wc_interswitch_webpay_init() {
 				//process a successful transaction
 				if( '00' == $response_code){
 
+					$payment_ref = $response['PaymentReference'];
+
 					// check if the amount paid is equal to the order amount.
 					if($order_total != $amount_paid)
 					{
@@ -332,29 +330,31 @@ function tbz_wc_interswitch_webpay_init() {
 						$order->update_status('on-hold', '');
 
 						//Error Note
-						$message = 'Thank you for shopping with us.<br />Your payment transaction was successful, but the amount paid is not the same as the total order amount.<br />Your order is currently on-hold.<br />Kindly contact us for more information regarding your order and payment status.<br />Transaction Reference: '.$txnref;
+						$message = 'Thank you for shopping with us.<br />Your payment transaction was successful, but the amount paid is not the same as the total order amount.<br />Your order is currently on-hold.<br />Kindly contact us for more information regarding your order and payment status.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
 						$message_type = 'notice';
 
 						//Add Customer Order Note
 	                    $order->add_order_note( $message, 1 );
 
 	                    //Add Admin Order Note
-	                    $order->add_order_note('Look into this order. <br />This order is currently on hold.<br />Reason: Amount paid is less than the total order amount.<br />Amount Paid was &#8358; '.$amount_paid.' while the total order amount is &#8358; '.$order_total.'<br />Transaction Reference: '.$txnref);
+	                    $order->add_order_note('Look into this order. <br />This order is currently on hold.<br />Reason: Amount paid is less than the total order amount.<br />Amount Paid was &#8358; '.$amount_paid.' while the total order amount is &#8358; '.$order_total.'<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref);
 
 						// Reduce stock levels
 						$order->reduce_order_stock();
 
 						// Empty cart
-						$woocommerce->cart->empty_cart();
+						WC()->cart->empty_cart();
 					}
 					else
 					{
 
 		                if($order->status == 'processing'){
-		                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref);
+
+		                	//Add admin order note
+		                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref);
 
 		                    //Add customer order note
-		 					$order->add_order_note('Payment Received.<br />Your order is currently being processed.<br />We will be shipping your order to you soon.<br /Transaction Reference: '.$txnref, 1);
+		 					$order->add_order_note('Payment Received.<br />Your order is currently being processed.<br />We will be shipping your order to you soon.<br /Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref, 1);
 
 							// Reduce stock levels
 							$order->reduce_order_stock();
@@ -362,7 +362,7 @@ function tbz_wc_interswitch_webpay_init() {
 							// Empty cart
 							WC()->cart->empty_cart();
 
-							$message = 'Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is currently being processed.<br />Transaction Reference: '.$txnref;
+							$message = 'Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is currently being processed.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
 							$message_type = 'success';
 		                }
 		                else{
@@ -373,12 +373,12 @@ function tbz_wc_interswitch_webpay_init() {
 								$order->update_status( 'completed', 'Payment received, your order is now complete.' );
 
 			                    //Add admin order note
-			                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref);
+			                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref);
 
 			                    //Add customer order note
-			 					$order->add_order_note('Payment Received.<br />Your order is now complete.<br />Transaction Reference: '.$txnref, 1);
+			 					$order->add_order_note('Payment Received.<br />Your order is now complete.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref, 1);
 
-								$message = 'Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is now complete.<br />Transaction Reference: '.$txnref;
+								$message = 'Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is now complete.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
 								$message_type = 'success';
 
 		                	}
@@ -388,12 +388,12 @@ function tbz_wc_interswitch_webpay_init() {
 								$order->update_status( 'processing', 'Payment received, your order is currently being processed.' );
 
 								//Add admin order noote
-			                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref);
+			                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref);
 
 			                    //Add customer order note
-			 					$order->add_order_note('Payment Received.<br />Your order is currently being processed.<br />We will be shipping your order to you soon.<br />Transaction Reference: '.$txnref, 1);
+			 					$order->add_order_note('Payment Received.<br />Your order is currently being processed.<br />We will be shipping your order to you soon.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref, 1);
 
-								$message = 'Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is currently being processed.<br />Transaction Reference: '.$txnref;
+								$message = 'Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is currently being processed.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
 								$message_type = 'success';
 		                	}
 
@@ -483,7 +483,7 @@ function tbz_wc_interswitch_webpay_init() {
 	    **/
 		function display_transaction_id(){
 			$order_id = absint( get_query_var( 'order-pay' ) );
-			$order = new WC_Order( $order_id );
+			$order = wc_get_order( $order_id );
 
 			$payment_method =  $order->payment_method;
 
@@ -499,7 +499,7 @@ function tbz_wc_interswitch_webpay_init() {
 	function tbz_wc_interswitch_message(){
 
 		$order_id 		= absint( get_query_var( 'order-received' ) );
-		$order 			= new WC_Order( $order_id );
+		$order 			= wc_get_order( $order_id );
 		$payment_method = $order->payment_method;
 
 		if( is_order_received_page() &&  ( 'tbz_webpay_gateway' == $payment_method ) ){
@@ -516,7 +516,7 @@ function tbz_wc_interswitch_webpay_init() {
 			}
 		}
 	}
-	add_action('wp', 'tbz_wc_interswitch_message', 0);
+	add_action( 'wp', 'tbz_wc_interswitch_message', 0 );
 
 
 	/**
@@ -610,6 +610,7 @@ function tbz_wc_interswitch_webpay_init() {
  	* Display the testmode notice
  	**/
 	function tbz_webpay_testmode_notice(){
+
 		$tbz_webpay_settings = get_option( 'woocommerce_tbz_webpay_gateway_settings' );
 
 		$webpay_test_mode = $tbz_webpay_settings['testmode'];
@@ -617,7 +618,7 @@ function tbz_wc_interswitch_webpay_init() {
 		if ( 'yes' == $webpay_test_mode ) {
 	    ?>
 		    <div class="update-nag">
-		        Interswitch Webpay testmode is still enabled, remember to disable it when you want to start accepting live payment on your site.
+		        Interswitch Webpay testmode is still enabled, Click <a href="<?php echo get_bloginfo('wpurl') ?>/wp-admin/admin.php?page=wc-settings&tab=checkout&section=WC_Tbz_Webpay_Gateway">here</a> to disable it when you want to start accepting live payment on your site.
 		    </div>
 	    <?php
 		}

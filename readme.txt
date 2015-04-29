@@ -3,8 +3,8 @@ Contributors: tubiz
 Donate link: http://bosun.me/donate
 Tags: woocommerce, payment gateway, payment gateways, mastercard, visa cards, mastercards, interswitch, verve cards, tubiz plugins, verve, nigeria, webpay
 Requires at least: 3.5
-Tested up to: 4.1
-Stable tag: 1.0.4
+Tested up to: 4.2
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,7 +37,7 @@ This plugin is meant to be used by merchants in Nigeria.
 
 *   __Accept payment__ via Verve Cards, Visa Cards and Mastercards.
 * 	__Seamless integration__ into the WooCommerce checkout page.
-* 	__Add Naira__ currency symbol. To select it go to go to __WooCommerce > Settings__ from the left hand menu, then click __General__ from the top tab. From __Currency__ select Naira, then click on __Save Changes__ for your changes to be effected.
+* 	__Add Naira__ currency symbol. To select it go to go to __WooCommerce > Settings__ from the left hand menu, then click __General__ from the top tab. From __Currency__ select Naira, then click on __Save Changes__ for your changes to be effected.
 
 = Premium Addons =
 
@@ -77,7 +77,7 @@ To contribute to this plugin feel free to fork it on GitHub [Interswitch Webpay 
 = Note: =
 If this is the first time you've installed a WordPress Plugin, you may need to enter the FTP login credential information. If you've installed a Plugin before, it will still have the login information. This information is available through your web server host.
 
-* Click "Proceed" to continue the installation. The resulting installation screen will list the installation as successful or note any problems during the install.
+* Click "Proceed" to continue the installation. The resulting installation screen will list the installation as successful or note any problems during the install.
 * If successful, click "Activate Plugin" to activate it.
 * 	Open the settings page for WooCommerce and click the "Payment Gateways," tab.
 * 	Click on the sub tab for "Interswitch Webpay".
@@ -86,7 +86,7 @@ If this is the first time you've installed a WordPress Plugin, you may need to e
 = Manual Installation =
 1. 	Download the plugin zip file
 2. 	Login to your WordPress Admin. Click on "Plugins > Add New" from the left hand menu.
-3.  Click on the "Upload" option, then click "Choose File" to select the zip file from your computer. Once selected, press "OK" and press the "Install Now" button.
+3.  Click on the "Upload" option, then click "Choose File" to select the zip file from your computer. Once selected, press "OK" and press the "Install Now" button.
 4.  Activate the plugin.
 5. 	Open the settings page for WooCommerce and click the "Payment Gateways," tab.
 6. 	Click on the sub tab for "Interswitch Webpay".
@@ -95,7 +95,7 @@ If this is the first time you've installed a WordPress Plugin, you may need to e
 
 
 = Configure the plugin =
-To configure the plugin, go to __WooCommerce > Settings__ from the left hand menu, then click "Payment Gateways" from the top tab. You should see __"Interswitch Webpay"__ as an option at the top of the screen. Click on it to configure the payment gateway.
+To configure the plugin, go to __WooCommerce > Settings__ from the left hand menu, then click "Payment Gateways" from the top tab. You should see __"Interswitch Webpay"__ as an option at the top of the screen. Click on it to configure the payment gateway.
 
 __*You can select the radio button next to the Interswitch Webpay from the list of payment gateways available to make it the default gateway.*__
 
@@ -124,6 +124,12 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 == Changelog ==
 
+= 1.1.0 =
+*	New: Show Interswith Payment Reference on successful transaction
+*	Fix: Change payment icon to a transparent image.
+*	Fix: Use wc_get_order instead or declaring a new WC_Order class
+*	Fix: Removed all global $woocommerce variable
+
 = 1.0.4 =
 * 	Fix: Payment status message not shown if pretty permalinks is disabled
 *	Fix: PHP notice when a customer is redirected back from Interswitch
@@ -150,8 +156,8 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 == Upgrade Notice ==
 
-= 1.0.4 =
-* Fix for payment status not shown if pretty permalinks is disabled
+= 1.1.0 =
+* Show Interswitch payment reference on successful transaction
 
 
 
