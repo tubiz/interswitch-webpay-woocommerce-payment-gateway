@@ -3,7 +3,7 @@
 	Plugin Name: Interswitch Webpay WooCommerce Payment Gateway
 	Plugin URI: http://bosun.me/interswitch-webpay-woocommerce-payment-gateway
 	Description: Interswitch Webpay Woocommerce Payment Gateway allows you to accept payment on your Woocommerce store via Verve Cards, Visa Cards and Mastercards.
-	Version: 1.1.0
+	Version: 1.2.0
 	Author: Tunbosun Ayinla
 	Author URI: http://bosun.me/
 	License:           GPL-2.0+
@@ -46,9 +46,10 @@ function tbz_wc_interswitch_webpay_init() {
 			// Define user set variables
 			$this->title 					= $this->get_option( 'title' );
 			$this->description 				= $this->get_option( 'description' );
-			$this->product_id				= $this->get_option( 'product_id' );
-			$this->pay_item_id				= $this->get_option( 'pay_item_id' );
+			$this->product_id				= trim( $this->get_option( 'product_id' ) );
+			$this->pay_item_id				= trim( $this->get_option( 'pay_item_id' ) );
 			$this->mac_key					= $this->get_option( 'mac_key' );
+			$this->mac_key 					= preg_replace( '/\s+/', '', $this->mac_key );
 			$this->testmode					= $this->get_option( 'testmode' );
 
 			//Actions
@@ -292,11 +293,17 @@ function tbz_wc_interswitch_webpay_init() {
 		/**
 		 * Verify a successful Payment!
 		**/
-		function check_webpay_response( $posted ){
+		function check_webpay_response(){
 
-			if( isset( $_POST['txnref'] ) ){
+			if( isset( $_POST['txnref'] ) || isset( $_REQUEST['txnRef'] ) ){
 
-				$txnref 		= $_POST['txnref'];
+				if( isset( $_POST['txnref'] ) ){
+					$txnref 		= $_POST['txnref'];
+				}
+				if( isset( $_REQUEST['txnRef'] ) ) {
+					$txnref 		= $_REQUEST['txnRef'];
+				}
+
 				$order_details 	= explode('_', $txnref);
 				$txn_ref 		= $order_details[0];
 				$order_id 		= $order_details[1];
