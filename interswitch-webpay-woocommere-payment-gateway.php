@@ -522,12 +522,12 @@ function tbz_wc_interswitch_webpay_init() {
 	/**
  	* Add Webpay Gateway to WC
  	**/
-	function wc_add_webay_gateway($methods) {
+	function tbz_wc_add_webay_gateway($methods) {
 		$methods[] = 'WC_Tbz_Webpay_Gateway';
 		return $methods;
 	}
 
-	add_filter('woocommerce_payment_gateways', 'wc_add_webay_gateway' );
+	add_filter( 'woocommerce_payment_gateways', 'tbz_wc_add_webay_gateway' );
 
 
 	/**
