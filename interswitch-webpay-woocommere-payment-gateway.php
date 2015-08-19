@@ -3,7 +3,7 @@
 	Plugin Name: Interswitch Webpay WooCommerce Payment Gateway
 	Plugin URI: http://bosun.me/interswitch-webpay-woocommerce-payment-gateway
 	Description: Interswitch Webpay Woocommerce Payment Gateway allows you to accept payment on your Woocommerce store via Verve Cards, Visa Cards and Mastercards.
-	Version: 1.2.0
+	Version: 1.2.1
 	Author: Tunbosun Ayinla
 	Author URI: http://bosun.me/
 	License:           GPL-2.0+
@@ -489,15 +489,20 @@ function tbz_wc_interswitch_webpay_init() {
 	     * Display the Transaction Reference on the payment confirmation page.
 	    **/
 		function display_transaction_id(){
-			$order_id = absint( get_query_var( 'order-pay' ) );
-			$order = wc_get_order( $order_id );
 
-			$payment_method =  $order->payment_method;
+			if( get_query_var( 'order-pay' ) ){
 
-			if( !isset( $_GET['pay_for_order'] ) && ( 'tbz_webpay_gateway' == $payment_method ) ){
-				$txn_ref =$order_id = WC()->session->get( 'tbz_wc_webpay_txn_id' );
-				WC()->session->__unset( 'tbz_wc_webpay_txn_id' );
-				echo '<h4>Transaction Reference: '. $txn_ref .'</h4>';
+				$order_id = absint( get_query_var( 'order-pay' ) );
+				$order = wc_get_order( $order_id );
+
+				$payment_method =  $order->payment_method;
+
+				if( !isset( $_GET['pay_for_order'] ) && ( 'tbz_webpay_gateway' == $payment_method ) ){
+					$txn_ref =$order_id = WC()->session->get( 'tbz_wc_webpay_txn_id' );
+					WC()->session->__unset( 'tbz_wc_webpay_txn_id' );
+					echo '<h4>Transaction Reference: '. $txn_ref .'</h4>';
+				}
+
 			}
 		}
 	}
@@ -505,22 +510,26 @@ function tbz_wc_interswitch_webpay_init() {
 
 	function tbz_wc_interswitch_message(){
 
-		$order_id 		= absint( get_query_var( 'order-received' ) );
-		$order 			= wc_get_order( $order_id );
-		$payment_method = $order->payment_method;
+		if( get_query_var( 'order-received' ) ){
 
-		if( is_order_received_page() &&  ( 'tbz_webpay_gateway' == $payment_method ) ){
+			$order_id 		= absint( get_query_var( 'order-received' ) );
+			$order 			= wc_get_order( $order_id );
+			$payment_method = $order->payment_method;
 
-			$notification 		= get_post_meta( $order_id, '_tbz_interswitch_wc_message', true );
+			if( is_order_received_page() &&  ( 'tbz_webpay_gateway' == $payment_method ) ){
 
-			$message 			= isset( $notification['message'] ) ? $notification['message'] : '';
-			$message_type 		= isset( $notification['message_type'] ) ? $notification['message_type'] : '';
+				$notification 		= get_post_meta( $order_id, '_tbz_interswitch_wc_message', true );
 
-			delete_post_meta( $order_id, '_tbz_interswitch_wc_message' );
+				$message 			= isset( $notification['message'] ) ? $notification['message'] : '';
+				$message_type 		= isset( $notification['message_type'] ) ? $notification['message_type'] : '';
 
-			if( ! empty( $message) ){
-				wc_add_notice( $message, $message_type );
+				delete_post_meta( $order_id, '_tbz_interswitch_wc_message' );
+
+				if( ! empty( $message) ){
+					wc_add_notice( $message, $message_type );
+				}
 			}
+
 		}
 	}
 	add_action( 'wp', 'tbz_wc_interswitch_message', 0 );
