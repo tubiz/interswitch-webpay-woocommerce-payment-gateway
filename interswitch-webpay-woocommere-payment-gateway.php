@@ -2,8 +2,8 @@
 /*
 	Plugin Name: Interswitch Webpay WooCommerce Payment Gateway
 	Plugin URI: http://bosun.me/interswitch-webpay-woocommerce-payment-gateway
-	Description: Interswitch Webpay Woocommerce Payment Gateway allows you to accept payment on your Woocommerce store via Verve Cards, Visa Cards and Mastercards.
-	Version: 1.2.1
+	Description: Interswitch Webpay WooCommerce Payment Gateway allows you to accept payment on your Woocommerce store via Verve Card, Visa Card and MasterCard.
+	Version: 2.0.0
 	Author: Tunbosun Ayinla
 	Author URI: http://bosun.me/
 	License:           GPL-2.0+
@@ -18,14 +18,14 @@ add_action('plugins_loaded', 'tbz_wc_interswitch_webpay_init', 0);
 
 function tbz_wc_interswitch_webpay_init() {
 
-	if ( !class_exists( 'WC_Payment_Gateway' ) ) return;
+	if ( ! class_exists( 'WC_Payment_Gateway' ) ) return;
 
 	/**
  	 * Gateway class
  	 */
 	class WC_Tbz_Webpay_Gateway extends WC_Payment_Gateway {
 
-		public function __construct(){
+		public function __construct() {
 
 			$this->id 					= 'tbz_webpay_gateway';
     		$this->icon 				= apply_filters('woocommerce_webpay_icon', plugins_url( 'assets/images/interswitch.png' , __FILE__ ) );
@@ -34,7 +34,7 @@ function tbz_wc_interswitch_webpay_init() {
 			$this->liveurl 				= 'https://webpay.interswitchng.com/paydirect/pay';
 			$this->redirect_url        	= WC()->api_request_url( 'WC_Tbz_Webpay_Gateway' );
         	$this->method_title     	= 'Interswitch Webpay';
-        	$this->method_description  	= 'Accepts Mastercard, Verve Card and Visa Card';
+        	$this->method_description  	= 'MasterCard, Verve Card and Visa Card accepted';
 
 
 			// Load the form fields.
@@ -71,7 +71,7 @@ function tbz_wc_interswitch_webpay_init() {
 		/**
 	 	* Check if the store curreny is set to NGN
 	 	**/
-		public function is_valid_for_use(){
+		public function is_valid_for_use() {
 
 			if( ! in_array( get_woocommerce_currency(), array('NGN') ) ){
 				$this->msg = 'Interswitch Webpay doesn\'t support your store currency, set it to Nigerian Naira &#8358; <a href="' . get_bloginfo('wpurl') . '/wp-admin/admin.php?page=wc-settings&tab=general">here</a>';
@@ -81,16 +81,32 @@ function tbz_wc_interswitch_webpay_init() {
 			return true;
 		}
 
+
+		/**
+		 * Check if this gateway is enabled
+		 */
+		public function is_available() {
+
+			if ( $this->enabled == "yes" ) {
+
+				if ( ! ( $this->product_id && $this->pay_item_id && $this->mac_key ) ) {
+					return false;
+				}
+				return true;
+			}
+
+			return false;
+		}
+
+
         /**
          * Admin Panel Options
          **/
-        public function admin_options(){
+        public function admin_options() {
             echo '<h3>Interswitch Webpay</h3>';
-            echo '<p>Interswitch Webpay allows you to accept payment through various channels such as Interswitch, Mastercard, Verve cards, eTranzact and Visa cards.</p>';
-
+            echo '<p>Interswitch Webpay allows you to accept MasterCard, Verve and Visa payment.</p>';
 
 			if ( $this->is_valid_for_use() ){
-
 	            echo '<table class="form-table">';
 	            $this->generate_settings_html();
 	            echo '</table>';
@@ -105,64 +121,65 @@ function tbz_wc_interswitch_webpay_init() {
 	    /**
 	     * Initialise Gateway Settings Form Fields
 	    **/
-		function init_form_fields(){
+		function init_form_fields() {
 			$this->form_fields = array(
-			'enabled' => array(
-							'title' 			=> 'Enable/Disable',
-							'type' 				=> 'checkbox',
-							'label' 			=> 'Enable Interswitch Webpay Payment Gateway',
-							'description' 		=> 'Enable or disable the gateway.',
-                    		'desc_tip'      	=> true,
-							'default' 			=> 'yes'
-						),
-				 'title' => array(
-								'title' 		=> 'Title',
-								'type' 			=> 'text',
-								'description' 	=> 'This controls the title which the user sees during checkout.',
-                    			'desc_tip'      => false,
-								'default' 		=> 'Interswitch Webpay'
-							),
+				'enabled' => array(
+					'title' 			=> 'Enable/Disable',
+					'type' 				=> 'checkbox',
+					'label' 			=> 'Enable Interswitch Webpay Payment Gateway',
+					'description' 		=> 'Enable or disable the gateway.',
+            		'desc_tip'      	=> true,
+					'default' 			=> 'yes'
+				),
+				'title' => array(
+					'title' 		=> 'Title',
+					'type' 			=> 'text',
+					'description' 	=> 'This controls the title which the user sees during checkout.',
+        			'desc_tip'      => false,
+					'default' 		=> 'Interswitch Webpay'
+				),
 				'description' => array(
-								'title' 		=> 'Description',
-								'type' 			=> 'textarea',
-								'description' 	=> 'This controls the description which the user sees during checkout.',
-								'default' 		=> 'Accepts Mastercard, Verve Card and Visa Card'
-							),
+					'title' 		=> 'Description',
+					'type' 			=> 'textarea',
+					'description' 	=> 'This controls the description which the user sees during checkout.',
+					'default' 		=> 'Accepts Mastercard, Verve Card and Visa Card'
+				),
 				'product_id' => array(
-								'title' 		=> 'Product ID',
-								'type' 			=> 'text',
-								'description' 	=> 'Product Identifier for PAYDirect.' ,
-								'default' 		=> '',
-                    			'desc_tip'      => false
-							),
+					'title' 		=> 'Product ID',
+					'type' 			=> 'text',
+					'description' 	=> 'Product Identifier for PAYDirect.' ,
+					'default' 		=> '',
+	    			'desc_tip'      => false
+				),
 				'pay_item_id' => array(
-								'title' 		=> 'Pay Item ID',
-								'type' 			=> 'text',
-								'description' 	=> 'PAYDirect Payment Item ID' ,
-								'default' 		=> '',
-                    			'desc_tip'      => false
-							),
+					'title' 		=> 'Pay Item ID',
+					'type' 			=> 'text',
+					'description' 	=> 'PAYDirect Payment Item ID' ,
+					'default' 		=> '',
+        			'desc_tip'      => false
+				),
 				'mac_key' => array(
-								'title' 		=> 'Mac Key',
-								'type' 			=> 'text',
-								'description' 	=> 'Your MAC Key' ,
-								'default' 		=> '',
-                    			'desc_tip'      => false
-							),
+					'title' 		=> 'Mac Key',
+					'type' 			=> 'text',
+					'description' 	=> 'Your MAC Key' ,
+					'default' 		=> '',
+        			'desc_tip'      => false
+				),
 				'testing' => array(
-								'title'       	=> 'Gateway Testing',
-								'type'        	=> 'title',
-								'description' 	=> '',
-							),
+					'title'       	=> 'Gateway Testing',
+					'type'        	=> 'title',
+					'description' 	=> '',
+				),
 				'testmode' => array(
-							'title'       		=> 'Test Mode',
-							'type'        		=> 'checkbox',
-							'label'       		=> 'Enable Test Mode',
-							'default'     		=> 'no',
-							'description' 		=> 'Test mode enables you to test payments before going live. <br />If you ready to start receving payment on your site, kindly uncheck this.',
+					'title'       		=> 'Test Mode',
+					'type'        		=> 'checkbox',
+					'label'       		=> 'Enable Test Mode',
+					'default'     		=> 'no',
+					'description' 		=> 'Test mode enables you to test payments before going live. <br />If you ready to start receving payment on your site, kindly uncheck this.',
 				)
 			);
 		}
+
 
 		/**
 		 * Get Webpay Args for passing to Interswitch
@@ -281,6 +298,7 @@ function tbz_wc_interswitch_webpay_init() {
 	        );
 		}
 
+
 	    /**
 	     * Output for the order received page.
 	    **/
@@ -293,13 +311,14 @@ function tbz_wc_interswitch_webpay_init() {
 		/**
 		 * Verify a successful Payment!
 		**/
-		function check_webpay_response(){
+		function check_webpay_response() {
 
-			if( isset( $_POST['txnref'] ) || isset( $_REQUEST['txnRef'] ) ){
+			if( isset( $_POST['txnref'] ) || isset( $_REQUEST['txnRef'] ) ) {
 
-				if( isset( $_POST['txnref'] ) ){
+				if( isset( $_POST['txnref'] ) ) {
 					$txnref 		= $_POST['txnref'];
 				}
+
 				if( isset( $_REQUEST['txnRef'] ) ) {
 					$txnref 		= $_REQUEST['txnRef'];
 				}
@@ -325,96 +344,54 @@ function tbz_wc_interswitch_webpay_init() {
                 do_action('tbz_wc_webpay_after_payment', $_POST, $response );
 
 				//process a successful transaction
-				if( '00' == $response_code){
+				if( '00' == $response_code ) {
 
 					$payment_ref = $response['PaymentReference'];
 
-					// check if the amount paid is equal to the order amount.
-					if($order_total != $amount_paid)
-					{
+					// check if the amount paid is less than the order amount.
+					if(  $amount_paid < $order_total ) {
 
 		                //Update the order status
-						$order->update_status('on-hold', '');
+						$order->update_status( 'on-hold', '' );
 
 						//Error Note
-						$message = 'Thank you for shopping with us.<br />Your payment transaction was successful, but the amount paid is not the same as the total order amount.<br />Your order is currently on-hold.<br />Kindly contact us for more information regarding your order and payment status.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
+						$message = 'Payment successful, but the amount paid is less than the total order amount.<br />Your order is currently on-hold.<br />Kindly contact us for more information regarding your order and payment status.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
 						$message_type = 'notice';
 
 						//Add Customer Order Note
 	                    $order->add_order_note( $message, 1 );
 
 	                    //Add Admin Order Note
-	                    $order->add_order_note('Look into this order. <br />This order is currently on hold.<br />Reason: Amount paid is less than the total order amount.<br />Amount Paid was &#8358; '.$amount_paid.' while the total order amount is &#8358; '.$order_total.'<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref);
+	                    $order->add_order_note( 'Look into this order. <br />This order is currently on hold.<br />Reason: Amount paid is less than the total order amount.<br />Amount Paid was &#8358;'.$amount_paid.' while the total order amount is &#8358;'.$order_total.'<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref );
+
+		                add_post_meta( $order_id, '_transaction_id', $payment_ref, true );
 
 						// Reduce stock levels
 						$order->reduce_order_stock();
 
 						// Empty cart
-						WC()->cart->empty_cart();
+						wc_empty_cart();
 					}
-					else
-					{
+					else {
 
-		                if($order->status == 'processing'){
+						$message = 'Payment Successful.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
+						$message_type = 'success';
 
-		                	//Add admin order note
-		                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref);
+	                	//Add admin order note
+	                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref);
 
-		                    //Add customer order note
-		 					$order->add_order_note('Payment Received.<br />Your order is currently being processed.<br />We will be shipping your order to you soon.<br /Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref, 1);
+	                    //Add customer order note
+	 					$order->add_order_note( 'Payment Successful.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref, 1 );
 
-							// Reduce stock levels
-							$order->reduce_order_stock();
+	 					$order->payment_complete( $payment_ref );
 
-							// Empty cart
-							WC()->cart->empty_cart();
-
-							$message = 'Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is currently being processed.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
-							$message_type = 'success';
-		                }
-		                else{
-
-		                	if( $order->has_downloadable_item() ){
-
-		                		//Update order status
-								$order->update_status( 'completed', 'Payment received, your order is now complete.' );
-
-			                    //Add admin order note
-			                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref);
-
-			                    //Add customer order note
-			 					$order->add_order_note('Payment Received.<br />Your order is now complete.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref, 1);
-
-								$message = 'Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is now complete.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
-								$message_type = 'success';
-
-		                	}
-		                	else{
-
-		                		//Update order status
-								$order->update_status( 'processing', 'Payment received, your order is currently being processed.' );
-
-								//Add admin order noote
-			                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref);
-
-			                    //Add customer order note
-			 					$order->add_order_note('Payment Received.<br />Your order is currently being processed.<br />We will be shipping your order to you soon.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref, 1);
-
-								$message = 'Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is currently being processed.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
-								$message_type = 'success';
-		                	}
-
-							// Reduce stock levels
-							$order->reduce_order_stock();
-
-							// Empty cart
-							WC()->cart->empty_cart();
-		                }
+						// Empty cart
+						wc_empty_cart();
 	                }
 				}
-				else{
+				else {
 					//process a failed transaction
-	            	$message = 	'Thank you for shopping with us. <br />However, the transaction wasn\'t successful, payment wasn\'t received.<br />Reason: '. $response_desc.'<br />Transaction Reference: '.$txnref;
+	            	$message = 	'Payment Failed<br />Reason: '. $response_desc.'<br />Transaction Reference: '.$txnref;
 					$message_type = 'error';
 
 					//Add Customer Order Note
@@ -424,14 +401,12 @@ function tbz_wc_interswitch_webpay_init() {
                   	$order->add_order_note( $message );
 
 	                //Update the order status
-					$order->update_status('failed', '');
+					$order->update_status( 'failed', '' );
 				}
 			}
-			else{
-
-            	$message = 	'Thank you for shopping with us. <br />However, the transaction wasn\'t successful, payment wasn\'t received.';
+			else {
+            	$message = 	'Payment Failed';
 				$message_type = 'error';
-
 			}
 
             $notification_message = array(
@@ -439,22 +414,20 @@ function tbz_wc_interswitch_webpay_init() {
             	'message_type' => $message_type
             );
 
-			if ( version_compare( WOOCOMMERCE_VERSION, "2.2" ) >= 0 ) {
-				add_post_meta( $order_id, '_transaction_id', $txnref, true );
-			}
-
 			update_post_meta( $order_id, '_tbz_interswitch_wc_message', $notification_message );
 
             $redirect_url = $this->get_return_url( $order );
 
             wp_redirect( $redirect_url );
+
             exit;
 		}
+
 
 		/**
 	 	* Query a transaction details
 	 	**/
-		function tbz_webpay_transaction_details( $txnref, $total ){
+		function tbz_webpay_transaction_details( $txnref, $total ) {
 
 			$product_id 	= $this->product_id;
 			$mac_key        = $this->mac_key;
@@ -475,20 +448,27 @@ function tbz_wc_interswitch_webpay_init() {
 			);
 
 			$args = array(
-				'timeout'	=> 30,
+				'timeout'	=> 90,
 				'headers' 	=> $headers
 			);
 
-			$response 		= wp_remote_get( $url, $args );
-			$response  		= json_decode($response['body'], true);
+			$response = wp_remote_get( $url, $args );
 
-			return $response;
+          	if ( ! is_wp_error( $response ) && 200 == wp_remote_retrieve_response_code( $response ) ) {
+				$response = json_decode( $response['body'], true );
+          	}
+          	else {
+          		$response['ResponseCode'] = '400';
+          		$response['ResponseDescription'] = 'Can\'t verify payment. Contact us for more details about the order and payment status.';
+          	}
+          	return $response;
 		}
+
 
 	    /**
 	     * Display the Transaction Reference on the payment confirmation page.
 	    **/
-		function display_transaction_id(){
+		function display_transaction_id() {
 
 			if( get_query_var( 'order-pay' ) ){
 
@@ -508,7 +488,7 @@ function tbz_wc_interswitch_webpay_init() {
 	}
 
 
-	function tbz_wc_interswitch_message(){
+	function tbz_wc_interswitch_message() {
 
 		if( get_query_var( 'order-received' ) ){
 

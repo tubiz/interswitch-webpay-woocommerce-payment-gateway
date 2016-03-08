@@ -5,11 +5,11 @@
 
 **Tags:** woocommerce, payment gateway, payment gateways, mastercard, visa cards, mastercards, interswitch, verve cards, tubiz plugins, verve, nigeria, webpay
 
-**Requires at least:** 3.5
+**Requires at least:** 4.1
 
-**Tested up to:** 4.3
+**Tested up to:** 4.4
 
-**Stable tag:** 1.2.1
+**Stable tag:** 2.0.0
 
 **License:** GPLv2 or later
 
@@ -132,8 +132,11 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 ## Changelog ##
 
+### 2.0.0 ###
+*	Fix: Change payment icon
+
 ### 1.2.1 ###
-* 	Fix: PHP notice error
+*	Fix: PHP notice error
 
 ### 1.2.0 ###
 *	Fix: Fix an error that prevent transaction status message from being shown if there is extra white spacing in the MAC key.
@@ -167,10 +170,13 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 *   First release
 
 
+
+
+
 ## Upgrade Notice ##
 
-### 1.2.1 ###
-* 	Fix PHP notice error
+### 2.0.0 ###
+*	Fix: Change payment icon
 
 
 
