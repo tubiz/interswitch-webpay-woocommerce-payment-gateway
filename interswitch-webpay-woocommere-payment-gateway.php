@@ -3,7 +3,7 @@
 	Plugin Name: Interswitch Webpay WooCommerce Payment Gateway
 	Plugin URI: http://bosun.me/interswitch-webpay-woocommerce-payment-gateway
 	Description: Interswitch Webpay WooCommerce Payment Gateway allows you to accept payment on your Woocommerce store via Verve Card, Visa Card and MasterCard.
-	Version: 2.0.0
+	Version: 3.0.0
 	Author: Tunbosun Ayinla
 	Author URI: http://bosun.me/
 	License:           GPL-2.0+
@@ -30,7 +30,7 @@ function tbz_wc_interswitch_webpay_init() {
 			$this->id 					= 'tbz_webpay_gateway';
     		$this->icon 				= apply_filters('woocommerce_webpay_icon', plugins_url( 'assets/images/interswitch.png' , __FILE__ ) );
 			$this->has_fields 			= false;
-        	$this->testurl 				= 'https://stageserv.interswitchng.com/test_paydirect/pay';
+        	$this->testurl 				= 'https://sandbox.interswitchng.com/webpay/pay';
 			$this->liveurl 				= 'https://webpay.interswitchng.com/paydirect/pay';
 			$this->redirect_url        	= WC()->api_request_url( 'WC_Tbz_Webpay_Gateway' );
         	$this->method_title     	= 'Interswitch Webpay';
@@ -433,7 +433,7 @@ function tbz_wc_interswitch_webpay_init() {
 			$mac_key        = $this->mac_key;
 
 			if ( 'yes' == $this->testmode ) {
-        		$query_url = 'https://stageserv.interswitchng.com/test_paydirect/api/v1/gettransaction.json';
+        		$query_url = 'https://sandbox.interswitchng.com/webpay/api/v1/gettransaction.json';
 			} else {
 				$query_url = 'https://webpay.interswitchng.com/paydirect/api/v1/gettransaction.json';
 			}

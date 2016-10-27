@@ -2,9 +2,9 @@
 Contributors: tubiz
 Donate link: http://bosun.me/donate
 Tags: woocommerce, payment gateway, payment gateways, mastercard, visa cards, mastercards, interswitch, verve cards, tubiz plugins, verve, nigeria, webpay
-Requires at least: 4.1
-Tested up to: 4.4
-Stable tag: 2.0.0
+Requires at least: 4.4
+Tested up to: 4.6
+Stable tag: 3.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,9 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 == Changelog ==
 
+= 3.0.0 =
+*	Fix: Updated Interswitch staging payment and transaction query url
+
 = 2.0.0 =
 *	Fix: Change payment icon
 
@@ -167,8 +170,8 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 == Upgrade Notice ==
 
-= 2.0.0 =
-*	Fix: Change payment icon
+= 3.0.0 =
+*	Fix: Updated Interswitch staging payment and transaction query url
 
 
 
