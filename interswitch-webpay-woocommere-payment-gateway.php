@@ -3,7 +3,7 @@
 	Plugin Name: Interswitch Webpay WooCommerce Payment Gateway
 	Plugin URI: http://bosun.me/interswitch-webpay-woocommerce-payment-gateway
 	Description: Interswitch Webpay WooCommerce Payment Gateway allows you to accept payment on your Woocommerce store via Verve Card, Visa Card and MasterCard.
-	Version: 3.0.0
+	Version: 4.0.0
 	Author: Tunbosun Ayinla
 	Author URI: http://bosun.me/
 	License:           GPL-2.0+
@@ -14,7 +14,7 @@
 if ( ! defined( 'ABSPATH' ) )
 	exit;
 
-add_action('plugins_loaded', 'tbz_wc_interswitch_webpay_init', 0);
+add_action( 'plugins_loaded', 'tbz_wc_interswitch_webpay_init', 0 );
 
 function tbz_wc_interswitch_webpay_init() {
 
@@ -27,15 +27,9 @@ function tbz_wc_interswitch_webpay_init() {
 
 		public function __construct() {
 
-			$this->id 					= 'tbz_webpay_gateway';
-    		$this->icon 				= apply_filters('woocommerce_webpay_icon', plugins_url( 'assets/images/interswitch.png' , __FILE__ ) );
-			$this->has_fields 			= false;
-        	$this->testurl 				= 'https://sandbox.interswitchng.com/webpay/pay';
-			$this->liveurl 				= 'https://webpay.interswitchng.com/paydirect/pay';
-			$this->redirect_url        	= WC()->api_request_url( 'WC_Tbz_Webpay_Gateway' );
-        	$this->method_title     	= 'Interswitch Webpay';
-        	$this->method_description  	= 'MasterCard, Verve Card and Visa Card accepted';
-
+			$this->id 						= 'tbz_webpay_gateway';
+    		$this->icon 					= apply_filters( 'woocommerce_webpay_icon', plugins_url( 'assets/images/interswitch.png' , __FILE__ ) );
+			$this->has_fields 				= false;
 
 			// Load the form fields.
 			$this->init_form_fields();
@@ -52,8 +46,38 @@ function tbz_wc_interswitch_webpay_init() {
 			$this->mac_key 					= preg_replace( '/\s+/', '', $this->mac_key );
 			$this->testmode					= $this->get_option( 'testmode' );
 
+        	$this->payment_page 			= $this->get_option( 'payment_page' ) === 'new' ? 'new' : 'old';
+
+        	$this->old_testurl 				= 'https://sandbox.interswitchng.com/webpay/pay';
+        	$this->new_testurl 				= 'https://sandbox.interswitchng.com/collections/w/pay';
+
+        	$this->testurl             		= $this->payment_page === 'new' ? $this->new_testurl : $this->old_testurl;
+
+			$this->old_liveurl 				= 'https://webpay.interswitchng.com/paydirect/pay';
+			$this->new_liveurl 				= 'https://webpay.interswitchng.com/collections/w/pay';
+
+        	$this->liveurl             		= $this->payment_page === 'new' ? $this->new_liveurl : $this->old_liveurl;
+
+			$this->payment_url 				= $this->testmode === 'yes' ? $this->testurl : $this->liveurl;
+
+			$this->old_test_query_url 		= 'https://sandbox.interswitchng.com/webpay/api/v1/gettransaction.json';
+			$this->new_test_query_url 		= 'https://sandbox.interswitchng.com/collections/api/v1/gettransaction.json';
+
+			$this->test_query_url 			= $this->payment_page === 'new' ? $this->new_test_query_url : $this->old_test_query_url;
+
+			$this->old_live_query_url 		= 'https://webpay.interswitchng.com/paydirect/api/v1/gettransaction.json';
+			$this->new_live_query_url 		= 'https://webpay.interswitchng.com/collections/api/v1/gettransaction.json';
+
+			$this->live_query_url 			= $this->payment_page === 'new' ? $this->new_live_query_url : $this->old_live_query_url;
+
+			$this->query_url 				= $this->testmode === 'yes' ? $this->test_query_url : $this->live_query_url;
+
+			$this->redirect_url        		= WC()->api_request_url( 'WC_Tbz_Webpay_Gateway' );
+        	$this->method_title     		= 'Interswitch Webpay';
+        	$this->method_description  		= 'MasterCard, Verve Card and Visa Card accepted';
+
 			//Actions
-			add_action('woocommerce_receipt_tbz_webpay_gateway', array($this, 'receipt_page'));
+			add_action( 'woocommerce_receipt_tbz_webpay_gateway', array( $this, 'receipt_page' ) );
 			add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 
 			// Payment listener/API hook
@@ -73,7 +97,7 @@ function tbz_wc_interswitch_webpay_init() {
 	 	**/
 		public function is_valid_for_use() {
 
-			if( ! in_array( get_woocommerce_currency(), array('NGN') ) ){
+			if( ! in_array( get_woocommerce_currency(), array('NGN') ) ) {
 				$this->msg = 'Interswitch Webpay doesn\'t support your store currency, set it to Nigerian Naira &#8358; <a href="' . get_bloginfo('wpurl') . '/wp-admin/admin.php?page=wc-settings&tab=general">here</a>';
 				return false;
 			}
@@ -124,12 +148,12 @@ function tbz_wc_interswitch_webpay_init() {
 		function init_form_fields() {
 			$this->form_fields = array(
 				'enabled' => array(
-					'title' 			=> 'Enable/Disable',
-					'type' 				=> 'checkbox',
-					'label' 			=> 'Enable Interswitch Webpay Payment Gateway',
-					'description' 		=> 'Enable or disable the gateway.',
-            		'desc_tip'      	=> true,
-					'default' 			=> 'yes'
+					'title' 		=> 'Enable/Disable',
+					'type' 			=> 'checkbox',
+					'label' 		=> 'Enable Interswitch Webpay Payment Gateway',
+					'description' 	=> 'Enable or disable the gateway.',
+            		'desc_tip'      => true,
+					'default' 		=> 'yes'
 				),
 				'title' => array(
 					'title' 		=> 'Title',
@@ -143,6 +167,16 @@ function tbz_wc_interswitch_webpay_init() {
 					'type' 			=> 'textarea',
 					'description' 	=> 'This controls the description which the user sees during checkout.',
 					'default' 		=> 'Accepts Mastercard, Verve Card and Visa Card'
+				),
+				'payment_page' => array(
+					'title'       	=> 'Payment Page',
+					'type'        	=> 'select',
+					'description' 	=> 'The old payment page is still being used for old merchant.<br>Make sure you place a order to make sure you are redirected to the Interswitch payment page successfully.',
+					'options'		=> array(
+						''			=> 'Select One',
+						'old'		=> 'Old Payment Page',
+						'new'		=> 'New Payment Page'
+					)
 				),
 				'product_id' => array(
 					'title' 		=> 'Product ID',
@@ -171,11 +205,11 @@ function tbz_wc_interswitch_webpay_init() {
 					'description' 	=> '',
 				),
 				'testmode' => array(
-					'title'       		=> 'Test Mode',
-					'type'        		=> 'checkbox',
-					'label'       		=> 'Enable Test Mode',
-					'default'     		=> 'no',
-					'description' 		=> 'Test mode enables you to test payments before going live. <br />If you ready to start receving payment on your site, kindly uncheck this.',
+					'title'       	=> 'Test Mode',
+					'type'        	=> 'checkbox',
+					'label'       	=> 'Enable Test Mode',
+					'default'     	=> 'no',
+					'description' 	=> 'Test mode enables you to test payments before going live. <br />If you ready to start receving payment on your site, kindly uncheck this.',
 				)
 			);
 		}
@@ -233,12 +267,6 @@ function tbz_wc_interswitch_webpay_init() {
 
 			$order = wc_get_order( $order_id );
 
-			if ( 'yes' == $this->testmode ) {
-        		$webpay_adr = $this->testurl;
-			} else {
-				$webpay_adr = $this->liveurl;
-			}
-
 			$webpay_args = $this->get_webpay_args( $order );
 
 			// before payment hook
@@ -273,7 +301,7 @@ function tbz_wc_interswitch_webpay_init() {
 				jQuery("#submit_webpay_payment_form").click();
 			' );
 
-			return '<form action="' . $webpay_adr . '" method="post" id="webpay_payment_form" target="_top">
+			return '<form action="' . $this->payment_url . '" method="post" id="webpay_payment_form">
 					' . implode( '', $webpay_args_array ) . '
 					<!-- Button Fallback -->
 					<div class="payment_buttons">
@@ -313,7 +341,7 @@ function tbz_wc_interswitch_webpay_init() {
 		**/
 		function check_webpay_response() {
 
-			if( isset( $_POST['txnref'] ) || isset( $_REQUEST['txnRef'] ) ) {
+			if( ! empty( $_POST['txnref'] ) || ! empty( $_REQUEST['txnRef'] ) ) {
 
 				if( isset( $_POST['txnref'] ) ) {
 					$txnref 		= $_POST['txnref'];
@@ -334,7 +362,7 @@ function tbz_wc_interswitch_webpay_init() {
 
 		        $total          = $order_total * 100;
 
-		        $response       = $this->tbz_webpay_transaction_details( $txnref, $total);
+		        $response       = $this->tbz_webpay_transaction_details( $txnref, $total );
 
 				$response_code 	= $response['ResponseCode'];
 				$amount_paid    = $response['Amount'] / 100;
@@ -364,7 +392,7 @@ function tbz_wc_interswitch_webpay_init() {
 	                    //Add Admin Order Note
 	                    $order->add_order_note( 'Look into this order. <br />This order is currently on hold.<br />Reason: Amount paid is less than the total order amount.<br />Amount Paid was &#8358;'.$amount_paid.' while the total order amount is &#8358;'.$order_total.'<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref );
 
-		                add_post_meta( $order_id, '_transaction_id', $payment_ref, true );
+		                add_post_meta( $order_id, '_transaction_id', $txnref, true );
 
 						// Reduce stock levels
 						$order->reduce_order_stock();
@@ -378,12 +406,12 @@ function tbz_wc_interswitch_webpay_init() {
 						$message_type = 'success';
 
 	                	//Add admin order note
-	                    $order->add_order_note('Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref);
+	                    $order->add_order_note( 'Payment Via Interswitch Webpay<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref );
 
 	                    //Add customer order note
 	 					$order->add_order_note( 'Payment Successful.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref, 1 );
 
-	 					$order->payment_complete( $payment_ref );
+	 					$order->payment_complete( $txnref );
 
 						// Empty cart
 						wc_empty_cart();
@@ -403,15 +431,33 @@ function tbz_wc_interswitch_webpay_init() {
 	                //Update the order status
 					$order->update_status( 'failed', '' );
 				}
+
 			}
 			else {
-            	$message = 	'Payment Failed';
+
+				if( ! empty( $_REQUEST['desc'] ) ) {
+
+					$message = 'Payment Failed. ' . $_REQUEST['desc'];
+
+				} else {
+
+					$message = 	'Payment Failed.';
+
+				}
+
 				$message_type = 'error';
+
+				wc_add_notice( $message, $message_type );
+
+				wp_safe_redirect( wc_get_checkout_url() );
+
+ 				exit;
+
 			}
 
             $notification_message = array(
-            	'message'	=> $message,
-            	'message_type' => $message_type
+            	'message'		=> $message,
+            	'message_type' 	=> $message_type
             );
 
 			update_post_meta( $order_id, '_tbz_interswitch_wc_message', $notification_message );
@@ -421,6 +467,7 @@ function tbz_wc_interswitch_webpay_init() {
             wp_redirect( $redirect_url );
 
             exit;
+
 		}
 
 
@@ -432,16 +479,11 @@ function tbz_wc_interswitch_webpay_init() {
 			$product_id 	= $this->product_id;
 			$mac_key        = $this->mac_key;
 
-			if ( 'yes' == $this->testmode ) {
-        		$query_url = 'https://sandbox.interswitchng.com/webpay/api/v1/gettransaction.json';
-			} else {
-				$query_url = 'https://webpay.interswitchng.com/paydirect/api/v1/gettransaction.json';
-			}
+			$url 			= "$this->query_url?productid=$product_id&transactionreference=$txnref&amount=$total";
 
-			$url 	= "$query_url?productid=$product_id&transactionreference=$txnref&amount=$total";
+			$hash 			= $product_id.$txnref.$mac_key;
 
-			$hash 	= $product_id.$txnref.$mac_key;
-			$hash 	= hash("sha512", $hash);
+			$hash 			= hash("sha512", $hash);
 
 			$headers = array(
 				'Hash' => $hash
@@ -461,6 +503,7 @@ function tbz_wc_interswitch_webpay_init() {
           		$response['ResponseCode'] = '400';
           		$response['ResponseDescription'] = 'Can\'t verify payment. Contact us for more details about the order and payment status.';
           	}
+
           	return $response;
 		}
 
