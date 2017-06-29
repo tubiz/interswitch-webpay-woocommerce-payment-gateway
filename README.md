@@ -1,15 +1,15 @@
 # Interswitch Webpay WooCommerce Payment Gateway #
 **Contributors:** tubiz
 
-**Donate link:** http://bosun.me/donate
+**Donate link:** https://bosun.me/donate
 
 **Tags:** woocommerce, payment gateway, payment gateways, mastercard, visa cards, mastercards, interswitch, verve cards, tubiz plugins, verve, nigeria, webpay
 
 **Requires at least:** 4.4
 
-**Tested up to:** 4.7
+**Tested up to:** 4.8
 
-**Stable tag:** 4.0.0
+**Stable tag:** 4.0.1
 
 **License:** GPLv2 or later
 
@@ -132,6 +132,9 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 ## Changelog ##
 
+### 4.0.1 ###
+*	Fix: Deprecated WooCommerce order function
+
 ### 4.0.0 ###
 *	New: Add support for the new Interswitch payment page
 
@@ -181,8 +184,8 @@ __*You can select the radio button next to the Interswitch Webpay from the list 
 
 ## Upgrade Notice ##
 
-### 4.0.0 ###
-*	New: Add support for the new Interswitch payment page
+### 4.0.1 ###
+*	Fix: Deprecated WooCommerce order function
 
 
 

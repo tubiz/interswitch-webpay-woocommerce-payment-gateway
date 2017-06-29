@@ -1,9 +1,9 @@
 <?php
 /*
 	Plugin Name: Interswitch Webpay WooCommerce Payment Gateway
-	Plugin URI: http://bosun.me/interswitch-webpay-woocommerce-payment-gateway
+	Plugin URI: https://bosun.me/interswitch-webpay-woocommerce-payment-gateway
 	Description: Interswitch Webpay WooCommerce Payment Gateway allows you to accept payment on your Woocommerce store via Verve Card, Visa Card and MasterCard.
-	Version: 4.0.0
+	Version: 4.0.1
 	Author: Tunbosun Ayinla
 	Author URI: http://bosun.me/
 	License:           GPL-2.0+
@@ -92,6 +92,7 @@ function tbz_wc_interswitch_webpay_init() {
 			}
 		}
 
+
 		/**
 	 	* Check if the store curreny is set to NGN
 	 	**/
@@ -145,7 +146,7 @@ function tbz_wc_interswitch_webpay_init() {
 	    /**
 	     * Initialise Gateway Settings Form Fields
 	    **/
-		function init_form_fields() {
+		public function init_form_fields() {
 			$this->form_fields = array(
 				'enabled' => array(
 					'title' 		=> 'Enable/Disable',
@@ -218,7 +219,7 @@ function tbz_wc_interswitch_webpay_init() {
 		/**
 		 * Get Webpay Args for passing to Interswitch
 		**/
-		function get_webpay_args( $order ) {
+		public function get_webpay_args( $order ) {
 
 			$order_total	= $order->get_total();
 			$order_total    = $order_total * 100;
@@ -230,13 +231,18 @@ function tbz_wc_interswitch_webpay_init() {
 
             $redirect_url 	= $this->redirect_url;
 
-			$txn_ref 		= uniqid();
-			$txn_ref 		= $txn_ref.'_'.$order->id;
+            $order_id 		= method_exists( $order, 'get_id' ) ? $order->get_id() : $order->id;
 
-        	$customer_name	= $order->billing_first_name. ' ' . $order->billing_last_name;
+			$txn_ref 		= uniqid();
+			$txn_ref 		= $txn_ref . '_' . $order_id;
+
+			$first_name  	= method_exists( $order, 'get_billing_first_name' ) ? $order->get_billing_first_name() : $order->billing_first_name;
+			$last_name  	= method_exists( $order, 'get_billing_last_name' ) ? $order->get_billing_last_name() : $order->billing_last_name;
+
+        	$customer_name	= $last_name . ' ' . $last_name;
 
 			$hash 			= $txn_ref.$product_id.$pay_item_id.$order_total.$redirect_url.$mac_key;
-			$hash 			= hash("sha512", $hash);
+			$hash 			= hash( "sha512", $hash );
 
 			// webpay Args
 			$webpay_args = array(
@@ -260,10 +266,11 @@ function tbz_wc_interswitch_webpay_init() {
 			return $webpay_args;
 		}
 
+
 	    /**
 		 * Generate the Webpay Payment button link
 	    **/
-	    function generate_webpay_form( $order_id ) {
+	    public function generate_webpay_form( $order_id ) {
 
 			$order = wc_get_order( $order_id );
 
@@ -280,7 +287,7 @@ function tbz_wc_interswitch_webpay_init() {
 
 			wc_enqueue_js( '
 				$.blockUI({
-						message: "' . esc_js( __( 'Thank you for your order. We are now redirecting you to Interswitch to make payment.', 'woocommerce' ) ) . '",
+						message: "Thank you for your order. We are now redirecting you to Interswitch to make payment.",
 						baseZ: 99999,
 						overlayCSS:
 						{
@@ -313,15 +320,16 @@ function tbz_wc_interswitch_webpay_init() {
 				</form>';
 		}
 
+
 	    /**
 	     * Process the payment and return the result
 	    **/
-		function process_payment( $order_id ) {
+		public function process_payment( $order_id ) {
 
 			$order 	= wc_get_order( $order_id );
 
 	        return array(
-	        	'result' => 'success',
+	        	'result' 	=> 'success',
 				'redirect'	=> $order->get_checkout_payment_url( true )
 	        );
 		}
@@ -330,8 +338,8 @@ function tbz_wc_interswitch_webpay_init() {
 	    /**
 	     * Output for the order received page.
 	    **/
-		function receipt_page( $order ) {
-			echo '<p>' . __( 'Thank you - your order is now pending payment. You should be automatically redirected to Interswitch to make payment.', 'woocommerce' ) . '</p>';
+		public function receipt_page( $order ) {
+			echo '<p>Thank you - your order is now pending payment. You will be automatically redirected to Interswitch to make payment.</p>';
 			echo $this->generate_webpay_form( $order );
 		}
 
@@ -339,7 +347,7 @@ function tbz_wc_interswitch_webpay_init() {
 		/**
 		 * Verify a successful Payment!
 		**/
-		function check_webpay_response() {
+		public function check_webpay_response() {
 
 			if( ! empty( $_POST['txnref'] ) || ! empty( $_REQUEST['txnRef'] ) ) {
 
@@ -357,7 +365,7 @@ function tbz_wc_interswitch_webpay_init() {
 
 				$order_id 		= (int) $order_id;
 
-		        $order 			= wc_get_order($order_id);
+		        $order 			= wc_get_order( $order_id );
 		        $order_total	= $order->get_total();
 
 		        $total          = $order_total * 100;
@@ -399,8 +407,8 @@ function tbz_wc_interswitch_webpay_init() {
 
 						// Empty cart
 						wc_empty_cart();
-					}
-					else {
+
+					} else {
 
 						$message = 'Payment Successful.<br />Transaction Reference: '.$txnref.'<br />Payment Reference: '.$payment_ref;
 						$message_type = 'success';
@@ -416,8 +424,9 @@ function tbz_wc_interswitch_webpay_init() {
 						// Empty cart
 						wc_empty_cart();
 	                }
-				}
-				else {
+
+				} else {
+
 					//process a failed transaction
 	            	$message = 	'Payment Failed<br />Reason: '. $response_desc.'<br />Transaction Reference: '.$txnref;
 					$message_type = 'error';
@@ -432,8 +441,7 @@ function tbz_wc_interswitch_webpay_init() {
 					$order->update_status( 'failed', '' );
 				}
 
-			}
-			else {
+			} else {
 
 				if( ! empty( $_REQUEST['desc'] ) ) {
 
@@ -474,7 +482,7 @@ function tbz_wc_interswitch_webpay_init() {
 		/**
 	 	* Query a transaction details
 	 	**/
-		function tbz_webpay_transaction_details( $txnref, $total ) {
+		public function tbz_webpay_transaction_details( $txnref, $total ) {
 
 			$product_id 	= $this->product_id;
 			$mac_key        = $this->mac_key;
@@ -497,11 +505,14 @@ function tbz_wc_interswitch_webpay_init() {
 			$response = wp_remote_get( $url, $args );
 
           	if ( ! is_wp_error( $response ) && 200 == wp_remote_retrieve_response_code( $response ) ) {
+
 				$response = json_decode( $response['body'], true );
-          	}
-          	else {
+
+          	} else {
+
           		$response['ResponseCode'] = '400';
           		$response['ResponseDescription'] = 'Can\'t verify payment. Contact us for more details about the order and payment status.';
+
           	}
 
           	return $response;
@@ -511,14 +522,14 @@ function tbz_wc_interswitch_webpay_init() {
 	    /**
 	     * Display the Transaction Reference on the payment confirmation page.
 	    **/
-		function display_transaction_id() {
+		public function display_transaction_id() {
 
-			if( get_query_var( 'order-pay' ) ){
+			if( get_query_var( 'order-pay' ) ) {
 
-				$order_id = absint( get_query_var( 'order-pay' ) );
-				$order = wc_get_order( $order_id );
+				$order_id 	= absint( get_query_var( 'order-pay' ) );
+				$order 		= wc_get_order( $order_id );
 
-				$payment_method =  $order->payment_method;
+				$payment_method = method_exists( $order, 'get_payment_method' ) ? $order->get_payment_method() : $order->payment_method;
 
 				if( !isset( $_GET['pay_for_order'] ) && ( 'tbz_webpay_gateway' == $payment_method ) ){
 					$txn_ref =$order_id = WC()->session->get( 'tbz_wc_webpay_txn_id' );
@@ -533,13 +544,13 @@ function tbz_wc_interswitch_webpay_init() {
 
 	function tbz_wc_interswitch_message() {
 
-		if( get_query_var( 'order-received' ) ){
+		if( get_query_var( 'order-received' ) ) {
 
 			$order_id 		= absint( get_query_var( 'order-received' ) );
 			$order 			= wc_get_order( $order_id );
-			$payment_method = $order->payment_method;
+			$payment_method = method_exists( $order, 'get_payment_method' ) ? $order->get_payment_method() : $order->payment_method;
 
-			if( is_order_received_page() &&  ( 'tbz_webpay_gateway' == $payment_method ) ){
+			if( is_order_received_page() &&  ( 'tbz_webpay_gateway' == $payment_method ) ) {
 
 				$notification 		= get_post_meta( $order_id, '_tbz_interswitch_wc_message', true );
 
@@ -561,11 +572,10 @@ function tbz_wc_interswitch_webpay_init() {
 	/**
  	* Add Webpay Gateway to WC
  	**/
-	function tbz_wc_add_webay_gateway($methods) {
+	function tbz_wc_add_webay_gateway( $methods ) {
 		$methods[] = 'WC_Tbz_Webpay_Gateway';
 		return $methods;
 	}
-
 	add_filter( 'woocommerce_payment_gateways', 'tbz_wc_add_webay_gateway' );
 
 
@@ -579,7 +589,7 @@ function tbz_wc_interswitch_webpay_init() {
 		**/
 		add_filter( 'woocommerce_currencies', 'tbz_add_my_currency' );
 
-		if( ! function_exists( 'tbz_add_my_currency' )){
+		if( ! function_exists( 'tbz_add_my_currency' ) ) {
 			function tbz_add_my_currency( $currencies ) {
 			     $currencies['NGN'] = __( 'Naira', 'woocommerce' );
 			     return $currencies;
@@ -591,7 +601,7 @@ function tbz_wc_interswitch_webpay_init() {
 		**/
 		add_filter('woocommerce_currency_symbol', 'tbz_add_my_currency_symbol', 10, 2);
 
-		if( ! function_exists( 'tbz_add_my_currency_symbol' ) ){
+		if( ! function_exists( 'tbz_add_my_currency_symbol' ) ) {
 			function tbz_add_my_currency_symbol( $currency_symbol, $currency ) {
 			     switch( $currency ) {
 			          case 'NGN': $currency_symbol = '&#8358; '; break;
@@ -602,53 +612,30 @@ function tbz_wc_interswitch_webpay_init() {
 	}
 
 
+
 	/**
-	* Add Settings link to the plugin entry in the plugins menu for WC below 2.1
+	* Add Settings link to the plugin entry in the plugins menu
 	**/
-	if ( version_compare( WOOCOMMERCE_VERSION, "2.1" ) <= 0 ) {
+	function tbz_webpay_plugin_action_links( $links, $file ) {
+	    static $this_plugin;
 
-		add_filter('plugin_action_links', 'tbz_webpay_plugin_action_links', 10, 2);
+	    if (!$this_plugin) {
+	        $this_plugin = plugin_basename( __FILE__ );
+	    }
 
-		function tbz_webpay_plugin_action_links($links, $file) {
-		    static $this_plugin;
-
-		    if (!$this_plugin) {
-		        $this_plugin = plugin_basename(__FILE__);
-		    }
-
-		    if ($file == $this_plugin) {
-	        $settings_link = '<a href="' . get_bloginfo('wpurl') . '/wp-admin/admin.php?page=woocommerce_settings&tab=payment_gateways&section=WC_Tbz_Webpay_Gateway">Settings</a>';
-		        array_unshift($links, $settings_link);
-		    }
-		    return $links;
-		}
+	    if ($file == $this_plugin) {
+	        $settings_link = '<a href="' . get_bloginfo('wpurl') . '/wp-admin/admin.php?page=wc-settings&tab=checkout&section=wc_tbz_webpay_gateway">Settings</a>';
+	        array_unshift($links, $settings_link);
+	    }
+	    return $links;
 	}
-	/**
-	* Add Settings link to the plugin entry in the plugins menu for WC 2.1 and above
-	**/
-	else{
-		add_filter('plugin_action_links', 'tbz_webpay_plugin_action_links', 10, 2);
-
-		function tbz_webpay_plugin_action_links($links, $file) {
-		    static $this_plugin;
-
-		    if (!$this_plugin) {
-		        $this_plugin = plugin_basename(__FILE__);
-		    }
-
-		    if ($file == $this_plugin) {
-		        $settings_link = '<a href="' . get_bloginfo('wpurl') . '/wp-admin/admin.php?page=wc-settings&tab=checkout&section=wc_tbz_webpay_gateway">Settings</a>';
-		        array_unshift($links, $settings_link);
-		    }
-		    return $links;
-		}
-	}
+	add_filter( 'plugin_action_links', 'tbz_webpay_plugin_action_links', 10, 2 );
 
 
 	/**
  	* Display the testmode notice
  	**/
-	function tbz_webpay_testmode_notice(){
+	function tbz_webpay_testmode_notice() {
 
 		$tbz_webpay_settings = get_option( 'woocommerce_tbz_webpay_gateway_settings' );
 
